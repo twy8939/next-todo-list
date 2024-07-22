@@ -1,6 +1,7 @@
 "use client";
 
-import { Input } from "@material-tailwind/react";
+import { Button, Input } from "@material-tailwind/react";
+import Todo from "components/todo";
 
 export default function UI() {
   return (
@@ -11,6 +12,13 @@ export default function UI() {
         placeholder="Search TODO"
         icon={<i className="fas fa-search" />}
       />
+
+      <Todo />
+
+      <Button>
+        <i className="fas fa-plus mr-2" />
+        ADD TODO
+      </Button>
     </div>
   );
 }
