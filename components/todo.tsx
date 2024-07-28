@@ -1,12 +1,13 @@
 "use client";
 
 import { Checkbox, IconButton, Input } from "@material-tailwind/react";
+import { TodoRow } from "actions/todo-actions";
 import { useState } from "react";
 
-export default function Todo() {
+export default function Todo({ todo }: { todo: TodoRow }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [completed, setCompleted] = useState(false);
-  const [title, setTitle] = useState("");
+  const [completed, setCompleted] = useState(todo.completed);
+  const [title, setTitle] = useState(todo.title);
   return (
     <div className="w-full flex items-center gap-1">
       <Checkbox checked={completed} onChange={() => setCompleted(!completed)} />

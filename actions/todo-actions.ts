@@ -1,3 +1,5 @@
+"use server";
+
 import { Database } from "types_db";
 import { createServerSupabaseClient } from "utils/supabase/server";
 
