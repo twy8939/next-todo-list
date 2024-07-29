@@ -1,16 +1,43 @@
 "use client";
 
-import { Checkbox, IconButton, Input } from "@material-tailwind/react";
-import { TodoRow } from "actions/todo-actions";
+import { Checkbox, IconButton, Spinner } from "@material-tailwind/react";
+import { useMutation } from "@tanstack/react-query";
+import { TodoRow, updateTodo } from "actions/todo-actions";
+import { queryClient } from "config/ReactQueryClientProvider";
 import { useState } from "react";
 
 export default function Todo({ todo }: { todo: TodoRow }) {
   const [isEditing, setIsEditing] = useState(false);
   const [completed, setCompleted] = useState(todo.completed);
   const [title, setTitle] = useState(todo.title);
+
+  const updateTodoMutation = useMutation({
+    mutationFn: () =>
+      updateTodo({
+        id: todo.id,
+        title,
+        completed,
+      }),
+    onSuccess: () => {
+      setIsEditing(false);
+      queryClient.invalidateQueries({
+        queryKey: ["todo"],
+      });
+    },
+  });
+
+  const handleCheckboxChange = async (e) => {
+    await setCompleted(e.target.checked);
+    await updateTodoMutation.mutate();
+  };
+
+  const handleUpdateClick = async () => {
+    await updateTodoMutation.mutate();
+  };
+
   return (
     <div className="w-full flex items-center gap-1">
-      <Checkbox checked={completed} onChange={() => setCompleted(!completed)} />
+      <Checkbox checked={completed} onChange={handleCheckboxChange} />
 
       {isEditing ? (
         <input
@@ -22,9 +49,20 @@ export default function Todo({ todo }: { todo: TodoRow }) {
         <p className={`flex-1 ${completed && "line-through"}`}>{title}</p>
       )}
 
-      <IconButton onClick={() => setIsEditing(!isEditing)}>
-        <i className={`fas ${isEditing ? "fa-check" : "fa-pen"}`} />
-      </IconButton>
+      {isEditing ? (
+        <IconButton onClick={handleUpdateClick}>
+          {updateTodoMutation.isPending ? (
+            <Spinner />
+          ) : (
+            <i className={`fas fa-check`} />
+          )}
+        </IconButton>
+      ) : (
+        <IconButton onClick={() => setIsEditing(true)}>
+          <i className={`fas fa-pen`} />
+        </IconButton>
+      )}
+
       <IconButton>
         <i className="fas fa-trash" />
       </IconButton>
