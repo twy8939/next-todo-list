@@ -2,7 +2,7 @@
 
 import { Checkbox, IconButton, Spinner } from "@material-tailwind/react";
 import { useMutation } from "@tanstack/react-query";
-import { TodoRow, updateTodo } from "actions/todo-actions";
+import { deleteTodo, TodoRow, updateTodo } from "actions/todo-actions";
 import { queryClient } from "config/ReactQueryClientProvider";
 import { useState } from "react";
 
@@ -26,6 +26,15 @@ export default function Todo({ todo }: { todo: TodoRow }) {
     },
   });
 
+  const deleteTodoMutation = useMutation({
+    mutationFn: () => deleteTodo(todo.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["todo"],
+      });
+    },
+  });
+
   const handleCheckboxChange = async (e) => {
     await setCompleted(e.target.checked);
     await updateTodoMutation.mutate();
@@ -33,6 +42,10 @@ export default function Todo({ todo }: { todo: TodoRow }) {
 
   const handleUpdateClick = async () => {
     await updateTodoMutation.mutate();
+  };
+
+  const handleDeleteClick = async () => {
+    await deleteTodoMutation.mutate();
   };
 
   return (
@@ -63,8 +76,12 @@ export default function Todo({ todo }: { todo: TodoRow }) {
         </IconButton>
       )}
 
-      <IconButton>
-        <i className="fas fa-trash" />
+      <IconButton onClick={handleDeleteClick}>
+        {deleteTodoMutation.isPending ? (
+          <Spinner />
+        ) : (
+          <i className="fas fa-trash" />
+        )}
       </IconButton>
     </div>
   );
